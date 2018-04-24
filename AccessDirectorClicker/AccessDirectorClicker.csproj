@@ -3,6 +3,13 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net461</TargetFramework>
+    <ApplicationIcon />
+    <StartupObject />
+    <RepositoryUrl>https://github.com/bobend/AccessDirectorClicker</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <Authors>bobend</Authors>
+    <Description>Small tool to automatically click and kill Access Director</Description>
+    <PackageLicenseUrl>https://github.com/bobend/AccessDirectorClicker/blob/master/LICENSE</PackageLicenseUrl>
   </PropertyGroup>
 
   <ItemGroup>
