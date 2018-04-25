@@ -1,18 +1,27 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <TargetFramework>net461</TargetFramework>
     <ApplicationIcon />
     <StartupObject />
     <RepositoryUrl>https://github.com/bobend/AccessDirectorClicker</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <Authors>bobend</Authors>
-    <Description>Small tool to automatically click and kill Access Director</Description>
+    <Description>Small tool to automatically click Access Director</Description>
     <PackageLicenseUrl>https://github.com/bobend/AccessDirectorClicker/blob/master/LICENSE</PackageLicenseUrl>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Icon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Icon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="UIAutomationClient" />
     <Reference Include="UIAutomationTypes" />
   </ItemGroup>
