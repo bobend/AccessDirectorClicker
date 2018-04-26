@@ -75,18 +75,26 @@ namespace AccessDirectorClicker
         public static bool ClickAccessDirector()
         {
             Debug.WriteLine("Looking for Access Director Tray icon...");
-            foreach (var icon in EnumNotificationIcons())
+            try
             {
-                var name = (string) icon.GetCurrentPropertyValue(AutomationElement.NameProperty);
-                Debug.WriteLine(name);
-                if (!name.StartsWith("Access Director"))
+                foreach (var icon in EnumNotificationIcons())
                 {
-                    continue;
+                    var name = (string) icon.GetCurrentPropertyValue(AutomationElement.NameProperty);
+                    Debug.WriteLine(name);
+                    if (!name.StartsWith("Access Director") || name.Contains("Clicker"))
+                    {
+                        continue;
+                    }
+                    Debug.WriteLine("Found and clicked!");
+                    icon.InvokeButton();
+                    return true;
                 }
-                Debug.WriteLine("Found and clicked!");
-                icon.InvokeButton();
-                return true;
             }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+            }
+
             Debug.WriteLine("Didn't find Access Director");
             return false;
         }

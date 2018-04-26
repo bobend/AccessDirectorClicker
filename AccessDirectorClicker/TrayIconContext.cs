@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Reflection;
 using System.Windows.Forms;
 
@@ -13,6 +14,47 @@ namespace AccessDirectorClicker
         public TrayIconContext ()
         {
             _assembly = typeof(TrayIconContext).GetTypeInfo().Assembly;
+           
+            if (!AccessDirectorUtils.IsAdministrator())
+            {
+                while (true)
+                {
+                    MessageBox.Show(
+                        "Not admin, click access director once manually, then click ok and the app will be restarted as administrator.");
+
+                    var startInfo = new ProcessStartInfo(Application.ExecutablePath) {Verb = "runas"};
+                    try
+                    {
+                        Process.Start(startInfo);
+                    }
+                    catch (Exception e)
+                    {
+                        var res = MessageBox.Show($"{e.Message}", "Error", MessageBoxButtons.RetryCancel);
+                        if (res == DialogResult.Retry)
+                        {
+                            continue;
+                        }
+                    }
+                    break;
+                }
+
+                _timer = new Timer()
+                {
+                    Enabled = true,
+                    Interval = (int) TimeSpan.FromSeconds(1).TotalMilliseconds,
+                };
+                _timer.Tick += Exit;
+            }
+            else
+            {
+                _timer = new Timer()
+                {
+                    Enabled = true,
+                    Interval = (int) TimeSpan.FromMinutes(5).TotalMilliseconds + 5000,
+                };
+                _timer.Tick += Tick;
+            }
+
             // Initialize Tray Icon
             _trayIcon = new NotifyIcon()
             {
@@ -22,39 +64,29 @@ namespace AccessDirectorClicker
                     {
                         Enabled = AccessDirectorUtils.IsAdministrator(),
                     },
-                    new MenuItem("&Elvation", Elvation),
+                    new MenuItem("&Test click automation", Tick), 
                     new MenuItem("&About", About),
                     new MenuItem("E&xit", Exit),
                     
                 }),
                 Visible = true,
                 Text = "Access Director Clicker",
-                ContextMenuStrip = new ContextMenuStrip {}
-
-            };
-            _timer = new Timer()
-            {
-                Enabled = true,
-                Interval = (int) TimeSpan.FromSeconds(5).TotalMilliseconds + 10,
                 
             };
-            
-            Tick(null, null);
-            _timer.Tick += Tick;
+          
             _timer.Start();
         }
 
         void Tick(object sender, EventArgs e)
         {
             //Debug.WriteLine("tick");
-            if (AccessDirectorUtils.ReadElevationLevel() ==
-                AccessDirectorUtils.TOKEN_ELEVATION_TYPE.TokenElevationTypeDefault)
-            {
-                AccessDirectorUtils.ClickAccessDirector();
-            }
+            AccessDirectorUtils.ClickAccessDirector();
         }
         void Exit(object sender, EventArgs e)
         {
+            
+            _timer?.Stop();
+            _timer?.Dispose();
             // Hide tray icon, otherwise it will remain shown until user mouses over it
             _trayIcon.Visible = false;
             Application.Exit();
@@ -79,11 +111,7 @@ namespace AccessDirectorClicker
 
             MessageBox.Show(aboutText, aboutCaption, MessageBoxButtons.OK);
         }
-
-        void Elvation(object sender, EventArgs e)
-        {
-            MessageBox.Show(AccessDirectorUtils.ReadElevationLevel().ToString(), "Elevation", MessageBoxButtons.OK);
-        }
+     
         void Kill(object sender, EventArgs e)
         {
             var res = false;
@@ -93,6 +121,5 @@ namespace AccessDirectorClicker
             }
             MessageBox.Show(res ? "Killed" : "Failed", "Access Director processes killed", MessageBoxButtons.OK);
         }
-
     }
 }
