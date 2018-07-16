@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 
@@ -11,8 +12,19 @@ namespace AccessDirectorClicker
         private readonly Assembly _assembly;
         private readonly Timer _timer;
 
-        public TrayIconContext ()
+        public TrayIconContext(string[] args)
         {
+            Timer StartTimer(EventHandler tickAction, TimeSpan interval)
+            {
+                var timer = new Timer()
+                {
+                    Enabled = true,
+                    Interval = (int) interval.TotalMilliseconds,
+                };
+                timer.Tick += tickAction;
+                return timer;
+            }
+
             _assembly = typeof(TrayIconContext).GetTypeInfo().Assembly;
            
             if (!AccessDirectorUtils.IsAdministrator())
@@ -37,22 +49,14 @@ namespace AccessDirectorClicker
                     }
                     break;
                 }
-
-                _timer = new Timer()
-                {
-                    Enabled = true,
-                    Interval = (int) TimeSpan.FromSeconds(1).TotalMilliseconds,
-                };
-                _timer.Tick += Exit;
+                _timer = StartTimer(Exit, TimeSpan.FromSeconds(1));
             }
             else
             {
-                _timer = new Timer()
-                {
-                    Enabled = true,
-                    Interval = (int) TimeSpan.FromMinutes(5).TotalMilliseconds + 5000,
-                };
-                _timer.Tick += Tick;
+                _timer = 
+                    args.Select(a => a.ToLower()).Contains("kill") ? 
+                        StartTimer(Kill, TimeSpan.FromSeconds(1)) :
+                        StartTimer(Tick, TimeSpan.FromMinutes(5) + TimeSpan.FromSeconds(5));
             }
 
             // Initialize Tray Icon
@@ -119,7 +123,15 @@ namespace AccessDirectorClicker
             {
                 res = AccessDirectorUtils.KillAccessDirector();
             }
-            MessageBox.Show(res ? "Killed" : "Failed", "Access Director processes killed", MessageBoxButtons.OK);
+
+            if (!res)
+            {
+                MessageBox.Show("Failed", "Access Director failed to kill processes", MessageBoxButtons.OK);
+            }
+            else
+            {
+                Exit(sender, e);
+            }
         }
     }
 }

@@ -10,7 +10,7 @@ namespace AccessDirectorClicker
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new TrayIconContext());
+            Application.Run(new TrayIconContext(args));
         }
     }
 }
