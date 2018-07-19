@@ -34,7 +34,7 @@ namespace AccessDirectorClicker
                     MessageBox.Show(
                         "Not admin, click access director once manually, then click ok and the app will be restarted as administrator.");
 
-                    var startInfo = new ProcessStartInfo(Application.ExecutablePath) {Verb = "runas"};
+                    var startInfo = new ProcessStartInfo(Application.ExecutablePath) {Verb = "runas", Arguments = args.Aggregate((x, y) => $"{x} {y}")};
                     try
                     {
                         Process.Start(startInfo);

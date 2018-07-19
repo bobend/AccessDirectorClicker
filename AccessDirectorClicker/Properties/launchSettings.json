@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "AccessDirectorClicker": {
+      "commandName": "Project",
+      "commandLineArgs": "kill"
+    }
+  }
+}
